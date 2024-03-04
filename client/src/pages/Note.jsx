@@ -1,34 +1,50 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import notesDb from "../notes.json"
+import useNotePriority from "../hooks/useNotePriority"
 
-export function NoteItem(){
-
-}
-
-
+/*
+  We will now query the database for the note 
+  we need, rather than use the json file.
+*/
 export default function Note(){
 
   const params = useParams()
+  const { getPriorityValue } = useNotePriority()
 
   const [ note, setNote ] = useState()
 
-  // In the JSON file, find the note which has an _id equal to the 
-  // id in the URL
-  function getNote(){
-    const foundNote = notesDb.find( note => note._id === params.id)
-    console.log(foundNote)
-    setNote(foundNote)
+  async function getNote(){
+    try {
+      const query = await fetch(`/api/note/${params.id}`)
+      const result = await query.json()
+      if( result.status === "success" ){
+        setNote(result.payload)
+      }
+    } catch (err) {
+      console.log(err.message)
+    }
   }
   
   useEffect(() => {
     getNote()
   },[])
 
-  if( !note ) return <>No note could be found.</>
+  if( !note ) return <>Loading...</>
   return (
-    <>
-      <h1>{note?.title}</h1>
-    </>
+    <div className="container">
+      <div className="row">
+        <div className="col-12">
+          <h1>{note?.title}</h1>
+
+          <div className="mt-4">
+            { note.body }
+          </div>
+
+          <div className="mt-2">
+            Priority: { getPriorityValue(note.priority) }
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }

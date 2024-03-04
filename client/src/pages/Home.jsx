@@ -2,39 +2,33 @@ import { useEffect, useState } from 'react'
 import AddNote from '../components/AddNote'
 import ListNotes from '../components/ListNotes'
 import Note from '../components/Note'
-import notesDb from "../notes.json"
+import useVerifyUser from '../hooks/useVerifyUser'
 
 import "/node_modules/bootstrap/dist/css/bootstrap.min.css"
 
 
 export default function Home() {
 
-  const defaultForm = { title: "", body: "", priority: "0" }
-
-  const [ notes, setNotes ] = useState(notesDb)
-  const [ newNote, setNewNote ] = useState(defaultForm)
+  const [ notes, setNotes ] = useState([])
   const [ currentNote, setCurrentNote ] = useState(null)
 
+  const { isLoggedIn } = useVerifyUser()
+
   async function getNotes(){
-    const result = await fetch("https://my.api.mockaroo.com/notes.json?key=302071d0")
-    const data = await result.json()
-    const newData = data.map( item => ({...item, priority: item.priority.toString() }) )
-    setNotes(newData)
+    try {
+      const query = await fetch("/api/note")
+      const result = await query.json()
+      if( result.status === "success" ){
+        setNotes(result.payload)
+      }
+    } catch (err) {
+      console.log(err.message)
+    }
   }
 
-  // useEffect(() => {
-  //   if( !notes.length ){
-  //     getNotes()
-  //   }
-  // },[])
-
   useEffect(() => {
-    console.log(currentNote)
-  },[currentNote])
-
-  useEffect(() => {
-    console.log(notes)
-  },[notes])
+    getNotes()
+  },[])
 
 
   return (
@@ -43,18 +37,19 @@ export default function Home() {
         <div className="row">
           
           <div className="col-6">
-            <AddNote 
-              newNote={newNote} 
-              setNewNote={setNewNote} 
-              notes={notes} 
-              setNotes={setNotes} 
-              defaultForm={defaultForm}
-            />
+            { isLoggedIn === true ? (
+              <AddNote getNotes={getNotes} />
+            ): (
+              <p>You must be logged in to add notes!</p>
+            )}
           </div>
 
           <div className="col-6">
-            <ListNotes notes={notes} setCurrentNote={setCurrentNote} />
-            <Note currentNote={currentNote} />
+            { isLoggedIn === true ? (
+              <ListNotes notes={notes} setCurrentNote={setCurrentNote} />
+            ) : (
+              <p>You must be logged in to view notes!</p>
+            )}
           </div>
         </div>
       </div>

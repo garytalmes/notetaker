@@ -1,6 +1,8 @@
 import { useEffect } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Cookie from "js-cookie"
+import AppProvider from "./providers/AppProvider"
+import Header from "./components/Header"
 import { Home, Note, Auth } from "./pages"
 import "/node_modules/bootstrap/dist/css/bootstrap.min.css"
 
@@ -8,7 +10,6 @@ export default function App() {
 
   function verifyUser(){
     const cookie = Cookie.get("auth_cookie")
-    console.log("cookie", cookie)
   }
 
   useEffect(() => {
@@ -16,10 +17,8 @@ export default function App() {
   },[])
 
   return (
-    <>
-      <header>
-        <p>This is the header</p>
-      </header>
+    <AppProvider>
+      <Header />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -28,7 +27,7 @@ export default function App() {
           <Route path="*" element={<Note />} />
         </Routes>
       </BrowserRouter>
-    </>
+    </AppProvider>
   )
 }
 

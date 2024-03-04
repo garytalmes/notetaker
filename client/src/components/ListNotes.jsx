@@ -1,14 +1,10 @@
-
+import useNotePriority from "../hooks/useNotePriority"
 
 export default function ListNotes(props){
 
-  function getPriority(value){
-    if( value === "1" ) return "Low"
-    if( value === "2" ) return "Medium"
-    if( value === "3" ) return "LHighow"
-  }
+  const { getPriorityValue } = useNotePriority()
 
-
+  if( !props.notes.length ) return ( <p>No notes have been added yet!</p>)
   return (
     <>
       <table className="table">
@@ -32,17 +28,9 @@ export default function ListNotes(props){
               </td>
               <td>{ note.body }</td>
               <td>
-                { note.priority === "1" && (
-                  <span>Low</span>
-                )}
-
-                { note.priority === "2" && (
-                  <span>Medium</span>
-                )}
-
-                { note.priority === "3" && (
-                  <span>High</span>
-                )}
+                <span>
+                  { getPriorityValue(note.priority) }
+                </span>
               </td>
             </tr>
           ))}

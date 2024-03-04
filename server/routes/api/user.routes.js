@@ -62,6 +62,15 @@ router.post("/login", async(req, res) => {
   }
 })
 
+router.post("/logout", async(req, res) => {
+  try {
+    res.status(200).cookie("auth_cookie", "").json({ status: "success" })
+  }catch(err){
+    console.log(err.message)
+    res.status(401).json({ status: "error", payload: "Could not logout." })
+  }
+})
+
 router.put("/:id", async (req, res) => {
   try {
     const payload = await updateUserById(req.params.id, req.body)
